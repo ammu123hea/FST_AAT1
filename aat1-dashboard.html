@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f8f4">
+  <title>SkillSwap — Student dashboard</title>
+  <style>
+    :root { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #202820; background: #f7f8f4; font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; --green: #286249; --muted: #747e73; --line: #e6e9e1; }
+    * { box-sizing: border-box; }
+    body { min-width: 320px; min-height: 100vh; margin: 0; }
+    button, a { font: inherit; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; }
+    button:focus-visible, a:focus-visible { outline: 3px solid #a6caaa; outline-offset: 3px; }
+    .container { width: min(1050px, calc(100% - 40px)); margin: 0 auto; }
+    .header { border-bottom: 1px solid var(--line); background: #fff; }
+    .nav { display: flex; min-height: 70px; align-items: center; justify-content: space-between; gap: 18px; }
+    .brand { display: inline-flex; align-items: center; gap: 9px; font-size: 15px; font-weight: 850; letter-spacing: -.045em; }
+    .brand-mark { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 10px; color: #fff; background: var(--green); font-size: 16px; }
+    .brand-swap { color: var(--green); }
+    .nav-right { display: flex; align-items: center; gap: 14px; }
+    .user-chip { display: flex; align-items: center; gap: 8px; color: #5b6659; font-size: 11px; }
+    .avatar { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 50%; color: #395b43; background: #e3efdf; font-size: 10px; font-weight: 800; }
+    .logout { padding: 8px 11px; border: 1px solid var(--line); border-radius: 7px; color: #4e5a4c; background: #fff; font-size: 10px; font-weight: 700; }
+    .main { padding: 43px 0 56px; }
+    .demo-banner { margin-bottom: 26px; padding: 11px 14px; border: 1px solid #e6ebd6; border-radius: 8px; color: #5e694d; background: #f1f5e6; font-size: 10px; line-height: 1.6; }
+    .eyebrow { margin: 0 0 9px; color: var(--green); font-size: 9px; font-weight: 850; letter-spacing: .15em; }
+    h1 { margin: 0; font-size: clamp(32px, 5vw, 45px); letter-spacing: -.065em; }
+    .intro { margin: 9px 0 27px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .stat { padding: 18px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+    .stat-label { color: var(--muted); font-size: 10px; }
+    .stat-value { display: block; margin-top: 10px; color: #29382a; font-size: 24px; font-weight: 750; letter-spacing: -.05em; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 17px; }
+    .card { padding: 21px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+    .card h2 { margin: 0; font-size: 15px; letter-spacing: -.035em; }
+    .card p { margin: 8px 0 15px; color: var(--muted); font-size: 11px; line-height: 1.7; }
+    .skill-form { display: flex; gap: 7px; margin-bottom: 11px; }
+    .skill-input { min-width: 0; min-height: 38px; flex: 1; padding: 0 10px; border: 1px solid var(--line); border-radius: 7px; color: #283328; background: #fff; font: inherit; font-size: 10px; }
+    .skill-input:focus { border-color: #83a98b; outline: 0; box-shadow: 0 0 0 3px rgba(40, 98, 73, .09); }
+    .add-skill { flex: 0 0 auto; padding: 0 11px; border: 0; border-radius: 7px; color: #fff; background: var(--green); font-size: 10px; font-weight: 750; }
+    .add-skill:hover { background: #1d503a; }
+    .suggestions { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .suggestion { padding: 5px 8px; border: 1px solid #e3e9dd; border-radius: 20px; color: #53644e; background: #f7f9f4; font-size: 9px; }
+    .suggestion:hover:not(:disabled) { border-color: #b5cbb3; background: #eff5eb; }
+    .suggestion:disabled { cursor: default; opacity: .55; }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 7px; }
+    .tag { display: inline-flex; align-items: center; gap: 7px; padding: 6px 7px 6px 9px; border-radius: 6px; color: #52644e; background: #f0f5eb; font-size: 10px; font-weight: 650; }
+    .remove-skill { display: grid; width: 17px; height: 17px; place-items: center; padding: 0; border: 0; border-radius: 50%; color: #64745f; background: rgba(255, 255, 255, .75); font-size: 13px; line-height: 1; }
+    .remove-skill:hover { color: #9b3931; background: #fff; }
+    .empty { padding: 13px; border: 1px dashed #dfe5dc; border-radius: 7px; color: #879085; font-size: 10px; }
+    .storage-message { min-height: 15px; margin: 12px 0 0; color: #8a6732; font-size: 10px; line-height: 1.5; }
+    .dashboard-links { display: flex; flex-wrap: wrap; gap: 8px; margin: -12px 0 20px; }
+    .dashboard-links a { padding: 7px 10px; border: 1px solid var(--line); border-radius: 20px; color: #53644e; background: #fff; font-size: 10px; font-weight: 700; }
+    .dashboard-links a:hover { border-color: #bdd0b9; color: var(--green); }
+    .directory { margin-top: 22px; scroll-margin-top: 20px; }
+    .directory-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 15px; margin-bottom: 15px; }
+    .directory-heading h2 { margin: 0; font-size: 21px; letter-spacing: -.045em; }
+    .directory-heading p { margin: 6px 0 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .directory-count { flex: 0 0 auto; color: var(--muted); font-size: 10px; }
+    .explore-tools { display: grid; grid-template-columns: minmax(180px, 1fr) auto; gap: 10px; margin-bottom: 10px; }
+    .search-input { min-height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 7px; color: #283328; background: #fff; font: inherit; font-size: 11px; }
+    .role-filter { min-height: 40px; padding: 0 10px; border: 1px solid var(--line); border-radius: 7px; color: #536053; background: #fff; font: inherit; font-size: 10px; }
+    .skill-explorer { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 15px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+    .skill-explorer-label { margin-right: 3px; color: var(--muted); font-size: 9px; font-weight: 700; }
+    .skill-filter { padding: 5px 8px; border: 1px solid #e3e9dd; border-radius: 20px; color: #53644e; background: #f7f9f4; font-size: 9px; }
+    .skill-filter.active { border-color: var(--green); color: #fff; background: var(--green); }
+    .member-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .member-card { min-width: 0; padding: 16px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+    .member-top { display: flex; align-items: center; gap: 10px; }
+    .member-avatar { display: grid; width: 36px; height: 36px; flex: 0 0 auto; place-items: center; border-radius: 12px; color: #365b40; background: #e4efdf; font-size: 10px; font-weight: 800; }
+    .member-name { overflow: hidden; font-size: 11px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+    .member-meta { margin-top: 3px; overflow: hidden; color: var(--muted); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+    .member-role { margin-left: auto; padding: 5px 7px; border-radius: 20px; color: #3c7048; background: #edf5e9; font-size: 8px; font-weight: 750; white-space: nowrap; }
+    .member-role.learner { color: #745c3e; background: #f8f1e5; }
+    .member-skills-label { margin: 13px 0 6px; color: #879084; font-size: 8px; font-weight: 800; letter-spacing: .09em; }
+    .member-skills { display: flex; flex-wrap: wrap; gap: 5px; }
+    .member-skill { padding: 5px 7px; border-radius: 5px; color: #53644e; background: #f0f5eb; font-size: 9px; }
+    .member-skill.learn { color: #765e40; background: #f8f1e6; }
+    .connect-action { width: 100%; min-height: 33px; margin-top: 14px; border: 1px solid #dfe8dc; border-radius: 6px; color: var(--green); background: #fff; font-size: 9px; font-weight: 750; }
+    .connect-action:hover:not(:disabled) { border-color: var(--green); background: #f5f9f3; }
+    .connect-action:disabled { cursor: default; color: #687369; background: #f5f6f3; }
+    .requests { margin-top: 24px; scroll-margin-top: 20px; }
+    .requests h2 { margin: 0 0 12px; font-size: 17px; letter-spacing: -.035em; }
+    .request-list { display: grid; gap: 8px; }
+    .request-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+    .request-copy { min-width: 0; color: #445044; font-size: 10px; line-height: 1.6; overflow-wrap: anywhere; }
+    .request-copy strong { color: var(--ink); }
+    .request-actions { display: flex; flex: 0 0 auto; gap: 6px; }
+    .request-actions button { min-height: 29px; padding: 0 9px; border: 1px solid var(--line); border-radius: 5px; color: #4d5e4d; background: #fff; font-size: 9px; font-weight: 700; }
+    .request-actions .accept { border-color: var(--green); color: #fff; background: var(--green); }
+    .request-status { color: #687369; font-size: 9px; font-weight: 700; white-space: nowrap; }
+    .cta { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 16px; padding: 21px; border-radius: 10px; color: white; background: #214b38; }
+    .cta h2 { margin: 0; font-size: 16px; letter-spacing: -.03em; }
+    .cta p { margin: 5px 0 0; color: #c9d8c9; font-size: 10px; }
+    .cta a { flex: 0 0 auto; padding: 11px 14px; border-radius: 7px; color: #2f4531; background: #dff0a7; font-size: 10px; font-weight: 750; }
+    .footer { padding: 18px 0; border-top: 1px solid var(--line); color: #8b9389; background: #fff; font-size: 9px; text-align: center; }
+    @media (max-width: 620px) { .container { width: calc(100% - 28px); } .main { padding-top: 27px; } .stats { grid-template-columns: 1fr; gap: 8px; } .stat { display: flex; align-items: center; justify-content: space-between; padding: 13px 15px; } .stat-value { margin: 0; font-size: 20px; } .grid, .member-grid { grid-template-columns: 1fr; } .cta { align-items: flex-start; flex-direction: column; } .user-chip span:last-child { display: none; } .explore-tools { grid-template-columns: 1fr; } .directory-heading { align-items: flex-start; flex-direction: column; gap: 5px; } .request-row { align-items: flex-start; flex-direction: column; } }
+  </style>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useEffect, useState } = React;
+    const sessionKey = "skillswap-demo-session";
+    const communityKey = "skillswap-demo-community";
+    const requestsKey = "skillswap-demo-connection-requests";
+    const skillSuggestions = ["Python", "Java", "SQL", "React", "Excel", "UI/UX", "Graphic design", "Public speaking", "Photography", "Video editing"];
+    const sampleMembers = [
+      { email: "priya.demo@skillswap.local", name: "Priya Kumar", college: "Northfield College", department: "Computer Science", year: "3", teachSkills: ["React", "UI/UX"], learnSkills: ["Python", "SQL"] },
+      { email: "rahul.demo@skillswap.local", name: "Rahul Sharma", college: "Northfield College", department: "Information Science", year: "2", teachSkills: ["Python", "SQL"], learnSkills: ["React", "UI/UX"] },
+      { email: "ananya.demo@skillswap.local", name: "Ananya Rao", college: "Northfield College", department: "Electronics", year: "3", teachSkills: ["Graphic design", "Photography"], learnSkills: ["Java", "Python"] },
+      { email: "dev.demo@skillswap.local", name: "Dev Patel", college: "Northfield College", department: "Computer Science", year: "1", teachSkills: ["Java", "Excel"], learnSkills: ["Graphic design", "React"] },
+    ];
+    let session = null;
+    try {
+      session = JSON.parse(sessionStorage.getItem(sessionKey) || "null");
+    } catch (error) {
+      session = null;
+    }
+
+    function SkillSection({ title, description, listName, emptyMessage, skills, onAdd, onRemove }) {
+      const [newSkill, setNewSkill] = useState("");
+
+      function submitSkill(event) {
+        event.preventDefault();
+        if (onAdd(listName, newSkill)) setNewSkill("");
+      }
+
+      return (
+        <section className="card">
+          <h2>{title}</h2>
+          <p>{description}</p>
+          <form className="skill-form" onSubmit={submitSkill}>
+            <input
+              className="skill-input"
+              value={newSkill}
+              onChange={(event) => setNewSkill(event.target.value)}
+              placeholder="Type a skill, e.g. Python"
+              maxLength="50"
+              aria-label={`New ${listName === "teachSkills" ? "teaching" : "learning"} skill`}
+            />
+            <button className="add-skill" type="submit">Add skill</button>
+          </form>
+          <div className="suggestions" aria-label="Suggested skills">
+            {skillSuggestions.map((skill) => {
+              const alreadyAdded = skills.some((item) => item.toLocaleLowerCase() === skill.toLocaleLowerCase());
+              return (
+                <button
+                  className="suggestion"
+                  type="button"
+                  key={skill}
+                  disabled={alreadyAdded}
+                  onClick={() => onAdd(listName, skill)}
+                >
+                  + {skill}
+                </button>
+              );
+            })}
+          </div>
+          {skills.length > 0 ? (
+            <div className="tag-list" aria-label={title}>
+              {skills.map((skill) => (
+                <span className="tag" key={skill}>
+                  {skill}
+                  <button
+                    className="remove-skill"
+                    type="button"
+                    aria-label={`Remove ${skill} from ${title.toLowerCase()}`}
+                    onClick={() => onRemove(listName, skill)}
+                  >×</button>
+                </span>
+              ))}
+            </div>
+          ) : <div className="empty">{emptyMessage}</div>}
+        </section>
+      );
+    }
+
+    if (!session || !session.email) {
+      window.location.replace("aat1.html?auth=login");
+    } else {
+      function Dashboard() {
+        const profileStorageKey = `skillswap-demo-profile:${session.email.toLowerCase()}`;
+        const [profile, setProfile] = useState(() => {
+          try {
+            const savedProfile = JSON.parse(localStorage.getItem(profileStorageKey) || "{}");
+            return {
+              teachSkills: Array.isArray(savedProfile.teachSkills) ? savedProfile.teachSkills.filter((skill) => typeof skill === "string") : [],
+              learnSkills: Array.isArray(savedProfile.learnSkills) ? savedProfile.learnSkills.filter((skill) => typeof skill === "string") : [],
+            };
+          } catch (error) {
+            return { teachSkills: [], learnSkills: [] };
+          }
+        });
+        const [storageMessage, setStorageMessage] = useState("");
+        const [community, setCommunity] = useState(() => {
+          let savedMembers = [];
+          try {
+            const stored = JSON.parse(localStorage.getItem(communityKey) || "null");
+            savedMembers = Array.isArray(stored) ? stored : sampleMembers;
+          } catch (error) {
+            savedMembers = sampleMembers;
+          }
+
+          const currentMember = {
+            email: session.email.toLowerCase(),
+            name: session.name || session.email.split("@")[0],
+            college: session.college || "SkillSwap student",
+            department: session.department || "",
+            year: session.year || "",
+            teachSkills: profile.teachSkills,
+            learnSkills: profile.learnSkills,
+          };
+          const memberIndex = savedMembers.findIndex((member) => member.email?.toLowerCase() === currentMember.email);
+          if (memberIndex < 0) return [...savedMembers, currentMember];
+          return savedMembers.map((member, index) => index === memberIndex ? { ...member, ...currentMember } : member);
+        });
+        const [connectionRequests, setConnectionRequests] = useState(() => {
+          try {
+            const stored = JSON.parse(localStorage.getItem(requestsKey) || "[]");
+            return Array.isArray(stored) ? stored : [];
+          } catch (error) {
+            return [];
+          }
+        });
+        const [searchTerm, setSearchTerm] = useState("");
+        const [selectedSkill, setSelectedSkill] = useState("");
+        const [memberFilter, setMemberFilter] = useState("all");
+
+        useEffect(() => {
+          try {
+            localStorage.setItem(communityKey, JSON.stringify(community));
+          } catch (error) {
+            setStorageMessage("Browser storage is unavailable; community profiles and skills may not persist.");
+          }
+        }, [community]);
+
+        useEffect(() => {
+          try {
+            localStorage.setItem(requestsKey, JSON.stringify(connectionRequests));
+          } catch (error) {
+            setStorageMessage("Browser storage is unavailable; connection requests may not persist.");
+          }
+        }, [connectionRequests]);
+
+        function updateSkills(listName, nextSkills) {
+          const nextProfile = { ...profile, [listName]: nextSkills };
+          setProfile(nextProfile);
+          setCommunity((members) => members.map((member) =>
+            member.email?.toLowerCase() === session.email.toLowerCase()
+              ? { ...member, [listName]: nextSkills }
+              : member
+          ));
+          try {
+            localStorage.setItem(profileStorageKey, JSON.stringify(nextProfile));
+            setStorageMessage("");
+          } catch (error) {
+            setStorageMessage("Browser storage is unavailable; skill changes will not persist after you leave this page.");
+          }
+        }
+
+        function addSkill(listName, value) {
+          const skill = value.trim().replace(/\s+/g, " ");
+          if (!skill) return false;
+          const currentSkills = profile[listName];
+          if (currentSkills.some((item) => item.toLocaleLowerCase() === skill.toLocaleLowerCase())) {
+            setStorageMessage(`“${skill}” is already in this list.`);
+            return false;
+          }
+          updateSkills(listName, [...currentSkills, skill]);
+          return true;
+        }
+
+        function removeSkill(listName, skillToRemove) {
+          updateSkills(listName, profile[listName].filter((skill) => skill !== skillToRemove));
+        }
+
+        function saveConnectionRequests(nextRequests) {
+          setConnectionRequests(nextRequests);
+          try {
+            localStorage.setItem(requestsKey, JSON.stringify(nextRequests));
+            setStorageMessage("");
+          } catch (error) {
+            setStorageMessage("Browser storage is unavailable; connection requests may not persist.");
+          }
+        }
+
+        function connectionFor(email) {
+          return connectionRequests.find((request) =>
+            (request.fromEmail === session.email.toLowerCase() && request.toEmail === email.toLowerCase())
+            || (request.toEmail === session.email.toLowerCase() && request.fromEmail === email.toLowerCase())
+          );
+        }
+
+        function sendConnectionRequest(member) {
+          const request = connectionFor(member.email);
+          if (request) return;
+          saveConnectionRequests([...connectionRequests, {
+            id: `${session.email.toLowerCase()}-${member.email.toLowerCase()}`,
+            fromEmail: session.email.toLowerCase(),
+            fromName: name,
+            toEmail: member.email.toLowerCase(),
+            toName: member.name,
+            status: "pending",
+            createdAt: new Date().toISOString(),
+          }]);
+        }
+
+        function respondToRequest(requestId, status) {
+          saveConnectionRequests(connectionRequests.map((request) =>
+            request.id === requestId ? { ...request, status } : request
+          ));
+        }
+
+        const currentEmail = session.email.toLowerCase();
+        const members = community.filter((member) => member.email?.toLowerCase() !== currentEmail);
+        const visibleMembers = members.filter((member) => {
+          const teaches = Array.isArray(member.teachSkills) ? member.teachSkills : [];
+          const learns = Array.isArray(member.learnSkills) ? member.learnSkills : [];
+          const term = searchTerm.trim().toLocaleLowerCase();
+          const matchesTerm = !term || [member.name, member.college, member.department, ...teaches, ...learns]
+            .some((value) => String(value || "").toLocaleLowerCase().includes(term));
+          const matchesSkill = !selectedSkill
+            || teaches.some((skill) => skill.toLocaleLowerCase() === selectedSkill.toLocaleLowerCase())
+            || learns.some((skill) => skill.toLocaleLowerCase() === selectedSkill.toLocaleLowerCase());
+          const matchesRole = memberFilter === "all"
+            || (memberFilter === "tutors" && teaches.length > 0)
+            || (memberFilter === "learners" && learns.length > 0);
+          return matchesTerm && matchesSkill && matchesRole;
+        });
+        const directorySkills = [...new Set(community.flatMap((member) => [
+          ...(Array.isArray(member.teachSkills) ? member.teachSkills : []),
+          ...(Array.isArray(member.learnSkills) ? member.learnSkills : []),
+        ]))].sort((left, right) => left.localeCompare(right));
+        const incomingRequests = connectionRequests.filter((request) => request.toEmail === currentEmail && request.status === "pending");
+        const sentRequests = connectionRequests.filter((request) => request.fromEmail === currentEmail);
+        const acceptedConnections = connectionRequests.filter((request) =>
+          request.status === "accepted" && (request.toEmail === currentEmail || request.fromEmail === currentEmail)
+        );
+
+        function signOut() {
+          sessionStorage.removeItem(sessionKey);
+          window.location.replace("aat1.html");
+        }
+
+        const name = session.name || session.email.split("@")[0];
+        const initials = name.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+
+        return (
+          <>
+            <header className="header">
+              <div className="container nav">
+                <a className="brand" href="aat1.html"><span className="brand-mark" aria-hidden="true">↗</span><span>Skill<span className="brand-swap">Swap</span></span></a>
+                <div className="nav-right">
+                  <div className="user-chip"><span className="avatar">{initials}</span><span>{name}</span></div>
+                  <button className="logout" type="button" onClick={signOut}>Sign out</button>
+                </div>
+              </div>
+            </header>
+            <main className="container main">
+              <div className="demo-banner"><strong>Demo session:</strong> you’re signed in locally in this browser. Sample students demonstrate discovery; profiles, skills, and connection requests are stored only in this browser, not on a server.</div>
+              <p className="eyebrow">YOUR SKILLSWAP SPACE</p>
+              <h1>Welcome, {name}.</h1>
+              <p className="intro">Add skills you can teach and skills you want to learn. Choose a suggestion or enter your own.</p>
+              <nav className="dashboard-links" aria-label="Dashboard sections">
+                <a href="#my-skills">My skills</a>
+                <a href="#explore">Explore students &amp; skills</a>
+                <a href="#connections">Connections</a>
+              </nav>
+              <section className="stats" aria-label="Your activity">
+                <article className="stat"><span className="stat-label">Skills you teach</span><strong className="stat-value">{profile.teachSkills.length}</strong></article>
+                <article className="stat"><span className="stat-label">Skills you want to learn</span><strong className="stat-value">{profile.learnSkills.length}</strong></article>
+                <article className="stat"><span className="stat-label">Pending requests</span><strong className="stat-value">{incomingRequests.length + sentRequests.filter((request) => request.status === "pending").length}</strong></article>
+                <article className="stat"><span className="stat-label">Connections</span><strong className="stat-value">{acceptedConnections.length}</strong></article>
+              </section>
+              <div className="grid" id="my-skills">
+                <SkillSection
+                  title="Your teaching skills"
+                  description="Share skills you feel comfortable teaching to another student."
+                  listName="teachSkills"
+                  emptyMessage="No teaching skills added yet."
+                  skills={profile.teachSkills}
+                  onAdd={addSkill}
+                  onRemove={removeSkill}
+                />
+                <SkillSection
+                  title="Skills you want to learn"
+                  description="Choose something you’re curious about and find a peer to learn with."
+                  listName="learnSkills"
+                  emptyMessage="No learning goals added yet."
+                  skills={profile.learnSkills}
+                  onAdd={addSkill}
+                  onRemove={removeSkill}
+                />
+              </div>
+              <p className="storage-message" role="status" aria-live="polite">{storageMessage}</p>
+              <section className="directory" id="explore">
+                <div className="directory-heading">
+                  <div><h2>Explore students and skills</h2><p>Find peers who can teach what you want to learn, or are looking for a skill you can share.</p></div>
+                  <span className="directory-count">{visibleMembers.length} {visibleMembers.length === 1 ? "student" : "students"}</span>
+                </div>
+                <div className="explore-tools">
+                  <input
+                    className="search-input"
+                    type="search"
+                    aria-label="Search students and skills"
+                    placeholder="Search a skill, student, college, or department..."
+                    value={searchTerm}
+                    onChange={(event) => setSearchTerm(event.target.value)}
+                  />
+                  <select className="role-filter" aria-label="Filter students" value={memberFilter} onChange={(event) => setMemberFilter(event.target.value)}>
+                    <option value="all">Tutors &amp; learners</option>
+                    <option value="tutors">Tutors</option>
+                    <option value="learners">Learners</option>
+                  </select>
+                </div>
+                <div className="skill-explorer" aria-label="Explore community skills">
+                  <span className="skill-explorer-label">EXPLORE SKILLS</span>
+                  <button className={`skill-filter${selectedSkill === "" ? " active" : ""}`} type="button" onClick={() => setSelectedSkill("")}>All skills</button>
+                  {directorySkills.map((skill) => (
+                    <button
+                      className={`skill-filter${selectedSkill === skill ? " active" : ""}`}
+                      type="button"
+                      key={skill}
+                      onClick={() => setSelectedSkill(selectedSkill === skill ? "" : skill)}
+                    >
+                      {skill}
+                    </button>
+                  ))}
+                  {directorySkills.length === 0 && <span className="skill-explorer-label">Add a skill to your profile to introduce it to the directory.</span>}
+                </div>
+                {visibleMembers.length > 0 ? (
+                  <div className="member-grid">
+                    {visibleMembers.map((member) => {
+                      const teaches = Array.isArray(member.teachSkills) ? member.teachSkills : [];
+                      const learns = Array.isArray(member.learnSkills) ? member.learnSkills : [];
+                      const request = connectionFor(member.email);
+                      const actionLabel = !request ? "Connect" : request.status === "pending"
+                        ? (request.fromEmail === currentEmail ? "Request sent" : "Respond to request below")
+                        : request.status === "accepted" ? "Connected" : "Request declined";
+                      const initialsForMember = (member.name || member.email)
+                        .split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+                      return (
+                        <article className="member-card" key={member.email}>
+                          <div className="member-top">
+                            <span className="member-avatar" aria-hidden="true">{initialsForMember}</span>
+                            <div style={{ minWidth: 0 }}>
+                              <div className="member-name">{member.name || member.email}</div>
+                              <div className="member-meta">{[member.department, member.college, member.year && `Year ${member.year}`].filter(Boolean).join(" · ") || "SkillSwap student"}</div>
+                            </div>
+                            {teaches.length > 0 && learns.length > 0 && <span className="member-role">TUTOR + LEARNER</span>}
+                            {teaches.length > 0 && learns.length === 0 && <span className="member-role">TUTOR</span>}
+                            {teaches.length === 0 && learns.length > 0 && <span className="member-role learner">LEARNER</span>}
+                          </div>
+                          <p className="member-skills-label">CAN TEACH</p>
+                          <div className="member-skills">
+                            {teaches.length > 0 ? teaches.map((skill) => <span className="member-skill" key={skill}>{skill}</span>) : <span className="member-meta">No teaching skills listed</span>}
+                          </div>
+                          <p className="member-skills-label">WANTS TO LEARN</p>
+                          <div className="member-skills">
+                            {learns.length > 0 ? learns.map((skill) => <span className="member-skill learn" key={skill}>{skill}</span>) : <span className="member-meta">No learning goals listed</span>}
+                          </div>
+                          <button
+                            className="connect-action"
+                            type="button"
+                            disabled={Boolean(request)}
+                            onClick={() => sendConnectionRequest(member)}
+                          >
+                            {actionLabel}
+                          </button>
+                        </article>
+                      );
+                    })}
+                  </div>
+                ) : <div className="empty">No students match these filters yet. Try another skill or search term.</div>}
+              </section>
+              <section className="requests" id="connections">
+                <h2>Connection requests &amp; connections</h2>
+                <div className="request-list">
+                  {incomingRequests.map((request) => (
+                    <div className="request-row" key={request.id}>
+                      <div className="request-copy"><strong>{request.fromName}</strong> wants to connect with you.</div>
+                      <div className="request-actions">
+                        <button className="accept" type="button" onClick={() => respondToRequest(request.id, "accepted")}>Accept</button>
+                        <button type="button" onClick={() => respondToRequest(request.id, "rejected")}>Decline</button>
+                      </div>
+                    </div>
+                  ))}
+                  {sentRequests.map((request) => (
+                    <div className="request-row" key={request.id}>
+                      <div className="request-copy">Request to <strong>{request.toName}</strong></div>
+                      <span className="request-status">{request.status === "pending" ? "Pending" : request.status === "accepted" ? "Connected" : "Declined"}</span>
+                    </div>
+                  ))}
+                  {acceptedConnections.filter((request) => request.toEmail === currentEmail).map((request) => (
+                    <div className="request-row" key={`accepted-${request.id}`}>
+                      <div className="request-copy">You’re connected with <strong>{request.fromName}</strong></div>
+                      <span className="request-status">Connected</span>
+                    </div>
+                  ))}
+                  {incomingRequests.length === 0 && sentRequests.length === 0 && acceptedConnections.length === 0 && (
+                    <div className="empty">No connection requests yet. Explore students above and send your first request.</div>
+                  )}
+                </div>
+              </section>
+              <section className="cta">
+                <div><h2>Your skills are the start of a great exchange.</h2><p>Explore the directory to find peers and discover new skills.</p></div>
+                <a href="#explore">Explore students →</a>
+              </section>
+            </main>
+            <footer className="footer">SkillSwap · Learn. Teach. Connect.</footer>
+          </>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<Dashboard />);
+    }
+  </script>
+</body>
+</html>
