@@ -470,7 +470,6 @@ The project can be improved in the future by adding:
 
 **Repository Link:**
 
-`YOUR_GITHUB_REPOSITORY_LINK`
 
 ---
 
